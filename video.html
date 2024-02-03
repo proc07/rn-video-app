@@ -1,0 +1,130 @@
+<html>
+  <head>
+    <title>Basic Transmuxer Test</title>
+  </head>
+  <body>
+    <input type="file" id="fileInput" multiple />
+    <video controls width="80%"></video>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mux.js/5.10.0/mux.min.js"></script>
+    <script>
+       const fileInput = document.getElementById('fileInput');
+
+      fileInput.addEventListener('change', function (event) {
+        const selectedFile = event.target.files;
+
+        Promise.all( Array.from(selectedFile).map(item => item.arrayBuffer()) ).then(res => {
+          segments.push(...res)
+
+            video = document.querySelector('video');
+            video.src = URL.createObjectURL(mediaSource);
+            mediaSource.addEventListener("sourceopen", appendFirstSegment);
+        })
+    
+      });
+
+      // Create array of TS files to play
+      segments = [
+        // "https://s5.bfbfvip.com/video/haojiumeizuo/%E7%AC%AC01%E9%9B%86/0000260.ts",
+      ];
+
+      // Replace this value with your files codec info
+      mime = 'video/mp4; codecs="mp4a.40.2,avc1.64001f"';
+
+      let mediaSource = new MediaSource();
+      let transmuxer = new muxjs.mp4.Transmuxer();
+
+      function appendFirstSegment(){
+        if (segments.length == 0){
+          return;
+        }
+
+        URL.revokeObjectURL(video.src);
+        sourceBuffer = mediaSource.addSourceBuffer(mime);
+        sourceBuffer.addEventListener('updateend', appendNextSegment);
+
+        transmuxer.on('data', (segment) => {
+          let data = new Uint8Array(segment.initSegment.byteLength + segment.data.byteLength);
+          data.set(segment.initSegment, 0);
+          data.set(segment.data, segment.initSegment.byteLength);
+          console.log(muxjs.mp4.tools.inspect(data));
+          sourceBuffer.appendBuffer(data);
+        })
+        
+        console.log('appendFirstSegment', segments)
+        transmuxer.push(new Uint8Array(segments.shift()));
+        transmuxer.flush();
+      }
+
+      function appendNextSegment(){
+        // reset the 'data' event listener to just append (moof/mdat) boxes to the Source Buffer
+        transmuxer.off('data');
+        transmuxer.on('data', (segment) =>{
+          sourceBuffer.appendBuffer(new Uint8Array(segment.data));
+        })
+        console.log('appendNextSegment', segments)
+        if (segments.length == 0){
+          // notify MSE that we have no more segments to append.
+          mediaSource.endOfStream();
+        }
+ 
+        segments.forEach((segment) => {
+          // fetch the next segment from the segments array and pass it into the transmuxer.push method
+          transmuxer.push(new Uint8Array(segments.shift()));
+          transmuxer.flush();
+        })
+      }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+<body>
+  <!-- <video playsinline id="ikanbot-player" class="video-js vjs-big-play-centered embed-responsive-item">
+  </video> -->
+  <!-- 引入 video.js 的 CSS 文件 -->
+  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+
+  <!-- 引入 video.js 的 JavaScript 文件 -->
+  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+  <input type="file" id="fileInput" accept=".ts">
+<script>
+// 获取播放器元素
+// const videoPlayer = document.getElementById('videoPlayer');
+ // const fileInput = document.getElementById('fileInput');
+    // fileInput.addEventListener('change', () => {
+    // const file = fileInput.files[0];
+    //   if (!file) {
+    //     console.error('No file selected');
+    //     return;
+    //   }
+    //   console.log(file)
+    //     player.src({
+    //       src: 'your-ts-file-url.ts',
+    //       type: 'video/mp4'  // MIME 类型，根据实际情况可能需要调整
+    //     });
+    //   player.play();      
+    // });
+
+
+    var player = videojs("ikanbot-player", {
+        controls: true,
+        preload: 'auto',
+        autoplay: true,
+        language: 'zh-CN',
+        playbackRates: [0.5, 1, 1.5, 2]
+    }, function() {});
+
+    // player.titleBar.update({
+    //         title: '警告：请切勿相信播放视频中的任何广告。',
+    //         description: '强烈建议使用谷歌浏览器(Chrome)，视频资源加载更流畅，兼容性更好。'
+    //     });
+    var playData = {
+              src: "https://1080p.jszyplay.com/play/PdRyxVYb/index.m3u8",
+              type: 'application/x-mpegURL'
+          };
+      
+</script>
+</body>
