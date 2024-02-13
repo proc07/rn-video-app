@@ -10,11 +10,7 @@ const PersonScreen = (): JSX.Element => (
 );
 
 const styles = StyleSheet.create({
-  PersonContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  PersonContainer: {},
 });
 
 export default PersonScreen;

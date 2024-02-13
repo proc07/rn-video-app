@@ -6,10 +6,13 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  FlatList,
   Image,
   TextInput,
+  Button,
+  TouchableOpacity,
 } from 'react-native';
-const cheerio = require('cheerio');
+import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
 type FilmHitsType = Array<{
   id: number;
@@ -18,7 +21,11 @@ type FilmHitsType = Array<{
   rate: string;
 }>;
 
-const HomeScreen = (): JSX.Element => {
+type HomeScreenProps = {
+  navigation: NavigationProp<ParamListBase>;
+};
+
+const HomeScreen: React.FC<HomeScreenProps> = ({navigation}): JSX.Element => {
   const [value, onChangeText] = useState('');
   const isDarkMode = useColorScheme() === 'dark';
   const [recentFilmHits, setRecentFilmHits] = useState<FilmHitsType>([]);
@@ -66,78 +73,125 @@ const HomeScreen = (): JSX.Element => {
 
   return (
     <SafeAreaView>
-      <View style={styles.HomeContainer}>
-        <View style={styles.SearchContainer}>
-          <TextInput
-            placeholder="请输入影片名称，演职人员"
-            style={styles.SearchInput}
-            onChangeText={text => onChangeText(text)}
-            value={value}
-          />
+      <ScrollView
+        horizontal={false}
+        showsHorizontalScrollIndicator={false}
+        directionalLockEnabled={true}
+        alwaysBounceVertical={false}>
+        <View style={styles.HomeContainer}>
+          <View style={styles.SearchContainer}>
+            <TextInput
+              placeholder="请输入影片名称，演职人员"
+              style={styles.SearchInput}
+              onChangeText={text => onChangeText(text)}
+              value={value}
+            />
+            <View style={styles.SearchButton}>
+              <Button color="#2196f3" title="Search" onPress={() => {}} />
+            </View>
+          </View>
+          <View>
+            <Text style={styles.SubTitle}>最近热门电影</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              directionalLockEnabled={true}
+              alwaysBounceVertical={false}
+              style={styles.RecentFilmHits}>
+              <FlatList
+                numColumns={10}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                data={recentFilmHits}
+                directionalLockEnabled={true}
+                alwaysBounceVertical={false}
+                renderItem={({item}) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate('Search', {
+                          id: item.id,
+                          name: item.name,
+                          src: item.src,
+                        });
+                      }}>
+                      <View style={styles.RecentFilmHitsItem}>
+                        <Image
+                          style={styles.RecentFilmHitsImage}
+                          source={{
+                            cache: 'force-cache',
+                            uri: item.src,
+                          }}
+                          resizeMode={'cover'}
+                        />
+                        <Text>{item.name}</Text>
+                        <Text style={styles.rate}>
+                          豆瓣{item.rate || '暂无'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </ScrollView>
+          </View>
+          <View style={styles.mt15}>
+            <Text style={styles.SubTitle}>最近热门电视剧</Text>
+            <ScrollView
+              horizontal={true}
+              contentInsetAdjustmentBehavior="automatic"
+              style={styles.RecentFilmHits}>
+              {recentSeriesHits.map(item => (
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('Search', {
+                      id: item.id,
+                      name: item.name,
+                      src: item.src,
+                    });
+                  }}>
+                  <View key={item.id} style={styles.RecentFilmHitsItem}>
+                    <Image
+                      style={styles.RecentFilmHitsImage}
+                      source={{
+                        cache: 'force-cache',
+                        uri: item.src,
+                      }}
+                      resizeMode={'cover'}
+                    />
+                    <Text>{item.name}</Text>
+                    <Text style={styles.rate}>豆瓣{item.rate || '暂无'}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
         </View>
-        <View>
-          <Text style={styles.SubTitle}>最近热门电影</Text>
-          <ScrollView
-            horizontal={true}
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.RecentFilmHits}>
-            {recentFilmHits.map(item => (
-              <View key={item.id} style={styles.RecentFilmHitsItem}>
-                <Image
-                  style={styles.RecentFilmHitsImage}
-                  source={{
-                    cache: 'force-cache',
-                    uri: item.src,
-                  }}
-                  resizeMode={'cover'}
-                />
-                <Text>{item.name}</Text>
-                <Text style={styles.rate}>{item.rate}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-        <View style={styles.mt15}>
-          <Text style={styles.SubTitle}>最近热门电视剧</Text>
-          <ScrollView
-            horizontal={true}
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.RecentFilmHits}>
-            {recentSeriesHits.map(item => (
-              <View key={item.id} style={styles.RecentFilmHitsItem}>
-                <Image
-                  style={styles.RecentFilmHitsImage}
-                  source={{
-                    cache: 'force-cache',
-                    uri: item.src,
-                  }}
-                  resizeMode={'cover'}
-                />
-                <Text>{item.name}</Text>
-                <Text style={styles.rate}>{item.rate}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  HomeContainer: {
-    display: 'flex',
-  },
+  HomeContainer: {},
   SearchContainer: {
     marginBottom: 10,
+    display: 'flex',
+    flexDirection: 'row',
   },
   SearchInput: {
+    flex: 1,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#f2f2f2',
     textAlignVertical: 'top',
     // fontSize: 14,
     padding: 20,
+  },
+  SearchButton: {
+    width: 80,
+    backgroundColor: '#fff',
+    paddingTop: 10,
   },
   SubTitle: {
     fontSize: 16,
@@ -155,10 +209,10 @@ const styles = StyleSheet.create({
     borderTopColor: '#fff',
     borderLeftColor: '#fff',
     borderRightColor: '#fff',
+    overflow: 'hidden',
   },
   RecentFilmHitsItem: {
-    flex: 1,
-    display: 'flex',
+    marginHorizontal: 15,
     marginRight: 15,
   },
   RecentFilmHitsImage: {

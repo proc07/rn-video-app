@@ -6,6 +6,8 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
  *
  * @type {import('metro-config').MetroConfig}
  */
-const config = {};
+const config = {
+  assets: ['./assets/Fonts/'], // 这里是您的字体文件目录
+};
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);
