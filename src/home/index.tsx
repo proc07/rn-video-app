@@ -26,8 +26,8 @@ type HomeScreenProps = {
 };
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation}): JSX.Element => {
-  const [value, onChangeText] = useState('');
-  const isDarkMode = useColorScheme() === 'dark';
+  const [searchValue, onChangeText] = useState('');
+  // const isDarkMode = useColorScheme() === 'dark';
   const [recentFilmHits, setRecentFilmHits] = useState<FilmHitsType>([]);
   const [recentSeriesHits, setRecenttSeriesHits] = useState<FilmHitsType>([]);
 
@@ -84,10 +84,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}): JSX.Element => {
               placeholder="请输入影片名称，演职人员"
               style={styles.SearchInput}
               onChangeText={text => onChangeText(text)}
-              value={value}
+              value={searchValue}
             />
             <View style={styles.SearchButton}>
-              <Button color="#2196f3" title="Search" onPress={() => {}} />
+              <Button
+                color="#2196f3"
+                title="Search"
+                onPress={() => {
+                  navigation.navigate('Search', {
+                    name: searchValue,
+                    src: '',
+                    rate: '',
+                  });
+                }}
+              />
             </View>
           </View>
           <View>
@@ -108,11 +118,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}): JSX.Element => {
                 renderItem={({item}) => {
                   return (
                     <TouchableOpacity
+                      key={item.id}
                       onPress={() => {
                         navigation.navigate('Search', {
-                          id: item.id,
                           name: item.name,
                           src: item.src,
+                          rate: item.rate,
                         });
                       }}>
                       <View style={styles.RecentFilmHitsItem}>
@@ -143,11 +154,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}): JSX.Element => {
               style={styles.RecentFilmHits}>
               {recentSeriesHits.map(item => (
                 <TouchableOpacity
+                  key={item.id}
                   onPress={() => {
                     navigation.navigate('Search', {
-                      id: item.id,
                       name: item.name,
                       src: item.src,
+                      rate: item.rate,
                     });
                   }}>
                   <View key={item.id} style={styles.RecentFilmHitsItem}>

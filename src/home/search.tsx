@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  Dimensions,
   TouchableOpacity,
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
@@ -73,20 +72,22 @@ const SearchScreen: React.FC<SearchScreenProps> = ({
         directionalLockEnabled={true}
         alwaysBounceVertical={false}>
         <View>
-          <View style={styles.RecentFilmHitsItem}>
-            <Image
-              style={styles.RecentFilmHitsImage}
-              source={{
-                cache: 'force-cache',
-                uri: src,
-              }}
-              resizeMode={'cover'}
-            />
-            <View>
-              <Text style={styles.name}>{name}</Text>
-              <Text style={styles.rate}>豆瓣{rate || '暂无'}</Text>
+          {src && (
+            <View style={styles.RecentFilmHitsItem}>
+              <Image
+                style={styles.RecentFilmHitsImage}
+                source={{
+                  cache: 'force-cache',
+                  uri: src,
+                }}
+                resizeMode={'cover'}
+              />
+              <View>
+                <Text style={styles.name}>{name}</Text>
+                <Text style={styles.rate}>豆瓣{rate || '暂无'}</Text>
+              </View>
             </View>
-          </View>
+          )}
           {routeList.map((routeItem, i) => {
             return (
               <TouchableOpacity
@@ -94,6 +95,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({
                 onPress={() => {
                   navigation.navigate('PlayVideo', {
                     id: routeItem.link.replace('/play/', ''),
+                    name: routeItem.titleText,
                   });
                 }}>
                 <View style={styles.RouteItem}>

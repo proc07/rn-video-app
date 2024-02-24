@@ -28,7 +28,7 @@ export default function App() {
     <NavigationContainer theme={isDarkMode ? DarkTheme : DefaultTheme}>
       <Stack.Navigator>
         <Stack.Screen
-          name="Home"
+          name="Main"
           component={BottomTop}
           options={{headerShown: false}}
         />
