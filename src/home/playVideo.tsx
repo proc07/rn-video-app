@@ -21,6 +21,27 @@ function extractNumbers(str: string) {
   return parseInt(numberStr, 10);
 }
 
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number,
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+
+  return function executedFunction(...args: Parameters<T>): void {
+    if (timeout) {
+      return;
+    }
+
+    const later = () => {
+      timeout = null as any;
+      func.apply(null, args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait) as any;
+  };
+}
+
 const PlayVideoScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -158,6 +179,7 @@ const PlayVideoScreen = (): JSX.Element => {
   };
 
   const handleFullScreen = () => {
+    console.log('handleFullScreen', lockToLands);
     setlockToLand(!lockToLands);
     // 在组件加载时隐藏标题栏
     navigation.setOptions({
@@ -189,7 +211,7 @@ const PlayVideoScreen = (): JSX.Element => {
         {sourceUri && (
           <Video
             ref={videoRef}
-            key={sourceUri}
+            key="videoPlayer"
             paused={paused}
             source={{
               uri: sourceUri,
@@ -269,27 +291,35 @@ const PlayVideoScreen = (): JSX.Element => {
                         <TouchableOpacity
                           key={_episode}
                           onPress={() => {
-                            if (!sourceUri) {
-                              setSourceUri(_url);
-                            } else if (isLoad) {
-                              setIsLoad(false);
-                              setSourceUri(_url);
-                            }
+                            setSourceUri('');
+                            setErrorText('');
+                            setPaused(true);
+                            handleSeek(0);
                             setEpisode(_episode);
                             setRouteName(index + 1);
-                            storage.save({
-                              key: 'historyList',
-                              id,
-                              data: {
+
+                            setTimeout(() => {
+                              if (!sourceUri) {
+                                setSourceUri(_url);
+                              } else if (isLoad) {
+                                setIsLoad(false);
+                                setSourceUri(_url);
+                              }
+                              setPaused(false);
+                              storage.save({
+                                key: 'historyList',
                                 id,
-                                name,
-                                routeName: index + 1,
-                                episode: _episode,
-                                sourceUri: _url,
-                                currentTime: 0,
-                                watchTime: +new Date(),
-                              },
-                            });
+                                data: {
+                                  id,
+                                  name,
+                                  routeName: index + 1,
+                                  episode: _episode,
+                                  sourceUri: _url,
+                                  currentTime: 0,
+                                  watchTime: +new Date(),
+                                },
+                              });
+                            }, 100);
                           }}>
                           <Text
                             // eslint-disable-next-line react-native/no-inline-styles
@@ -331,13 +361,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     top: 0,
-    zIndex: 2,
+    zIndex: 9,
   },
   FullScreenWarrperRotate: {
     position: 'absolute',
     right: 0,
     top: 0,
-    zIndex: 2,
+    zIndex: 9,
     transform: [{rotate: '90deg'}],
   },
   FullScreenBtn: {

@@ -13,6 +13,18 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useFocusEffect} from '@react-navigation/native';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
+function formatSeconds(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  const hoursStr = String(hours).padStart(2, '0');
+  const minutesStr = String(minutes).padStart(2, '0');
+  const secondsStr = String(remainingSeconds).padStart(2, '0');
+
+  return `${hoursStr}:${minutesStr}:${secondsStr}`;
+}
+
 type TypeHistoryList = Array<{
   id: string;
   currentTime: number;
@@ -73,7 +85,10 @@ const PersonScreen: React.FC<PersonScreenProps> = ({
                   <Text>
                     路线:{item.routeName} - 集数: {item.episode || '暂无'}
                   </Text>
-                  <Text>观看至：{item.currentTime.toFixed(0)}秒</Text>
+                  <Text>
+                    观看至：{formatSeconds(Number(item.currentTime.toFixed(0)))}
+                    秒
+                  </Text>
                   <Ionicons
                     style={styles.PlayForwardIcon}
                     name="play-forward-circle-sharp"
