@@ -5,7 +5,7 @@
 ![home page](./preview/home.png)
 ![person page](./preview/person.png)
 ![search page](./preview/search.png)
-![play page](./preview/search.png)
+![play page](./preview/playpage.png)
 ![play FullScreen](./preview/fullsreen.png)
 
 ## 存在问题
